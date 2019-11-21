@@ -70,7 +70,7 @@ wrapt==1.11.2
 1. Vamos configurar nossa API importando os frameworks e criando os objetos de inicialização, insira o código abaixo:
 ```python
 from flask import Flask
-from flask_restful import Api
+from flask_restful import Resource, Api
 
 app = Flask(__name__)
 api = Api(app)
