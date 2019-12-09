@@ -173,3 +173,174 @@ if __name__ == '__main__':
 from flask_sqlalchemy import SQLAlchemy
 database = SQLAlchemy()
 ```
+
+## index.html
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>API REST</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+
+</head>
+
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header
+            mdl-layout--fixed-tabs">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <!-- Title -->
+                <span class="mdl-layout-title">InspiraTI</span>
+            </div>
+            <!-- Tabs -->
+            <div class="mdl-layout__tab-bar mdl-js-ripple-effect">
+                <a href="#fixed-tab-1" class="mdl-layout__tab is-active">Cadastro</a>
+                <a href="#fixed-tab-2" class="mdl-layout__tab" onclick="listarPiadas()">Listar</a>
+            </div>
+        </header>
+        <div class="mdl-layout__drawer">
+            <span class="mdl-layout-title">Title</span>
+        </div>
+        <main class="mdl-layout__content">
+            <section class="mdl-layout__tab-panel is-active" id="fixed-tab-1">
+                <div class="page-content">
+                    <!-- Your content goes here -->
+                    <form action="#">
+                            <div class="mdl-cell mdl-cell--4-col mdl-cell--6-col-desktop mdl-cell--8-col-desktop">
+                                <h3>Cadastrar Piada Nerd</h3>
+                            </div>
+                            <div class="mdl-grid">
+                                <div class="mdl-cell mdl-cell--8-col mdl-cell--8-col-tablet mdl-cell--12-col-desktop">
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                        <input class="mdl-textfield__input" type="text" id="id">
+                                        <label class="mdl-textfield__label" for="id">ID</label>
+                                    </div>
+                                </div>
+                              </div>
+                              <div class="mdl-grid">
+                                <div class="mdl-cell mdl-cell--8-col mdl-cell--8-col-tablet mdl-cell--12-col-desktop">
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                        <input class="mdl-textfield__input" type="text" id="pergunta">
+                                        <label class="mdl-textfield__label" for="pergunta">Pergunta</label>
+                                    </div>
+                                </div>
+                              </div>
+                              <div class="mdl-grid">
+                                <div class="mdl-cell mdl-cell--8-col mdl-cell--8-col-tablet mdl-cell--12-col-desktop">
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                        <input class="mdl-textfield__input" type="text" id="resposta">
+                                        <label class="mdl-textfield__label" for="resposta">Resposta</label>
+                                    </div>
+                                </div>
+                              </div>
+                        <div class="mdl-grid">
+                            <div class="mdl-cell mdl-cell--4-col">
+                                <button
+                                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+                                    onclick="save()">
+                                    SALVAR
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+
+                </div>
+            </section>
+            <section class="mdl-layout__tab-panel" id="fixed-tab-2">
+                <div class="page-content">
+                    <!-- Your content goes here -->
+                    <div id="root">
+                        <ul class="demo-list-two mdl-list" id="lista">
+
+                        </ul>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+    </div>
+<script src="js/main.js"></script>
+</body>
+
+</html>
+
+``` 
+
+## js/main.js
+```javascript
+function listarPiadas() {
+  document.getElementById('lista').innerHTML = '';
+  fetch("http://localhost:5000/piadasnerd")
+    .then(response => response.json())
+    .then(json => {
+      console.log(json)
+      json.piadas.forEach(
+        piada => {
+          console.log(piada)
+
+          var ul = document.getElementById("lista");
+          var li = document.createElement('li');
+          var span = document.createElement('span');
+          span.classList.add('mdl-list__item-primary-content')
+          var i = document.createElement('i');
+          i.classList.add('material-icons')
+          i.classList.add('mdl-list__item-avatar')
+          i.textContent = 'insert_emoticon'
+
+          let pergunta = document.createElement('span')
+          pergunta.textContent = piada.pergunta
+          let resposta = document.createElement('span')
+          resposta.classList.add('mdl-list__item-text-body')
+          resposta.textContent = piada.resposta
+
+
+          span.appendChild(i)
+          span.appendChild(pergunta)
+          span.appendChild(resposta)
+
+          li.classList.add("mdl-list__item");
+          li.classList.add("mdl-list__item--three-line");
+          li.appendChild(span);
+          ul.appendChild(li);
+        }
+      )
+    })
+    .catch(erro => console.log(erro));
+}
+
+function save() {
+
+  var data = {};
+  data.id = document.getElementById('id').value;
+  data.pergunta = document.getElementById('pergunta').value;
+  data.resposta = document.getElementById('resposta').value;
+
+  var url = `http://localhost:5000/piadasnerd/${data.id}`;
+
+  console.log(`url: ${url}`)
+
+  var json = JSON.stringify(data);
+  var request = new XMLHttpRequest();
+  request.open("POST", url, true);
+  request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+  request.onload = function () {
+    var users = JSON.parse(request.responseText);
+    if (request.readyState == 4 && request.status == "201") {
+      console.table(users);
+    } else {
+      console.error(users);
+    }
+  }
+  request.send(json);
+}
+
+```
+
